@@ -45,7 +45,7 @@ export default function App() {
 
   const wxStyles = useAnimatedStyle(() => {
     return {
-      transform: [{translateX: offsetX.value}, {translateY: offsetY.value}],
+      transform: [{translateX: wxOffsetX.value}],
       backgroundColor: wxIsPressed.value ? '#ddd' : '#eee',
     };
   });
@@ -84,7 +84,7 @@ export default function App() {
   // 模拟wx删除消息动画功能
   const wxDel = Gesture.Pan()
     .onBegin(() => {
-      console.log("开始滑动")
+      console.log('开始滑动');
     })
     .onTouchesDown(() => {})
     .onTouchesMove(() => {})
@@ -109,7 +109,7 @@ export default function App() {
                 height: 100,
                 borderRadius: 100,
               },
-              animatedStyles,
+              wxStyles,
             ]}
           />
         </View>
@@ -123,20 +123,19 @@ export default function App() {
             position: 'absolute',
             top: 300,
           }}>
-          <View
-            style={[{width: '100%', height: 100, backgroundColor: 'red'}]}
-          />
-          <Animated.View
-            style={[
-              {
-                position: 'absolute',
-                width: 100,
-                height: 100,
-                borderRadius: 100,
-                backgroundColor: '#ddd',
-              },
-            ]}
-          />
+          <View style={[{width: '100%', height: 100, backgroundColor: 'red'}]}>
+            <Animated.View
+              style={[
+                {
+                  position: 'absolute',
+                  width: 100,
+                  height: 100,
+                  borderRadius: 100,
+                  backgroundColor: '#ddd',
+                },
+              ]}
+            />
+          </View>
         </View>
       </GestureDetector>
       {logs.map((log, index) => (
