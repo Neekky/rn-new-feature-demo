@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Text, View} from 'react-native';
+import {Text, View, StyleSheet} from 'react-native';
 import Animated, {
   runOnJS,
   useAnimatedStyle,
@@ -38,18 +38,6 @@ export default function App() {
     };
   });
 
-  // wx抽屉动画相关定义
-  const wxIsPressed = useSharedValue(false);
-
-  const wxOffsetX = useSharedValue(0);
-
-  const wxStyles = useAnimatedStyle(() => {
-    return {
-      transform: [{translateX: wxOffsetX.value}],
-      backgroundColor: wxIsPressed.value ? '#ddd' : '#eee',
-    };
-  });
-
   // 圆球拖动动画
   const dragGesture = Gesture.Pan()
     .onBegin(() => {
@@ -81,23 +69,43 @@ export default function App() {
     .onTouchesCancelled(() => {})
     .onFinalize(() => {});
 
+  // wx抽屉动画相关定义
+  const wxIsPressed = useSharedValue(false);
+
+  const wxOffsetX = useSharedValue(0);
+
+  const wxStyles = useAnimatedStyle(() => {
+    return {
+      transform: [{translateX: wxOffsetX.value}],
+      backgroundColor: wxIsPressed.value ? '#c3c3c3' : '#ddd',
+    };
+  });
+
   // 模拟wx删除消息动画功能
   const wxDel = Gesture.Pan()
     .onBegin(() => {
       console.log('开始滑动');
+      wxIsPressed.value = true;
     })
     .onTouchesDown(() => {})
     .onTouchesMove(() => {})
     .onStart(() => {})
     .onUpdate(() => {})
-    .onChange(e => {})
-    .onTouchesUp(() => {})
-    .onEnd(e => {})
+    .onChange(e => {
+      wxOffsetX.value = e.changeX + wxOffsetX.value;
+    })
+    .onTouchesUp(() => {
+      wxIsPressed.value = false;
+    })
+    .onEnd(e => {
+      wxIsPressed.value = false;
+    })
     .onTouchesCancelled(() => {})
     .onFinalize(() => {});
 
   return (
     <SafeAreaView>
+      {/* 圆球拖拽 */}
       <GestureDetector gesture={dragGesture}>
         <View style={{backgroundColor: '#ddd', position: 'absolute'}}>
           <View style={[{width: 100, height: 100, backgroundColor: 'red'}]} />
@@ -109,12 +117,12 @@ export default function App() {
                 height: 100,
                 borderRadius: 100,
               },
-              wxStyles,
+              animatedStyles,
             ]}
           />
         </View>
       </GestureDetector>
-      {/* wx模块 */}
+      {/* wx滑动删除模块 */}
       <GestureDetector gesture={wxDel}>
         <View
           style={{
@@ -123,7 +131,18 @@ export default function App() {
             position: 'absolute',
             top: 300,
           }}>
-          <View style={[{width: '100%', height: 100, backgroundColor: 'red'}]}>
+          <View style={styles.msgCardWrapper}>
+            <Animated.View
+              style={[
+                {
+                  position: 'absolute',
+                  width: '100%',
+                  height: 100,
+                  // borderRadius: 100,
+                },
+                wxStyles,
+              ]}
+            />
             <Animated.View
               style={[
                 {
@@ -131,8 +150,9 @@ export default function App() {
                   width: 100,
                   height: 100,
                   borderRadius: 100,
-                  backgroundColor: '#ddd',
+                  right: 0,
                 },
+                // wxStyles,
               ]}
             />
           </View>
@@ -144,3 +164,12 @@ export default function App() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  msgCardWrapper: {
+    width: '100%',
+    height: 100,
+    backgroundColor: 'red',
+    flexDirection: 'row',
+  },
+});
