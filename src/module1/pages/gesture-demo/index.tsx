@@ -5,6 +5,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -74,6 +75,8 @@ export default function App() {
 
   const wxOffsetX = useSharedValue(0);
 
+  const wxScale = useSharedValue(0);
+
   const wxStyles = useAnimatedStyle(() => {
     return {
       transform: [{translateX: wxOffsetX.value}],
@@ -81,27 +84,48 @@ export default function App() {
     };
   });
 
+  const wxScaleStyles = useAnimatedStyle(() => {
+    return {
+      width: wxScale.value * 60,
+      // transform: [{scaleX: wxScale.value}],
+    };
+  });
+
   // 模拟wx删除消息动画功能
   const wxDel = Gesture.Pan()
     .onBegin(() => {
       console.log('开始滑动');
-      wxIsPressed.value = true;
     })
     .onTouchesDown(() => {})
     .onTouchesMove(() => {})
     .onStart(() => {})
     .onUpdate(() => {})
     .onChange(e => {
+      wxIsPressed.value = true;
+
       wxOffsetX.value = e.changeX + wxOffsetX.value;
+
+      // 如果位移往右滑，到右边，则为0
+      if (e.changeX + wxOffsetX.value > 0) {
+        wxOffsetX.value = 0;
+      } else if (Math.abs(e.changeX + wxOffsetX.value) > 180) {
+        // 往左滑，最大距离为180
+        wxOffsetX.value = -180;
+      }
+
+      wxScale.value = Math.abs(wxOffsetX.value / 180);
     })
     .onTouchesUp(() => {
       wxIsPressed.value = false;
+      if (Math.abs(wxOffsetX.value) < 180) {
+        wxOffsetX.value = withTiming(0);
+      }
     })
-    .onEnd(e => {
-      wxIsPressed.value = false;
-    })
+    .onEnd(e => {})
     .onTouchesCancelled(() => {})
     .onFinalize(() => {});
+
+  const bgMap = ['#987', '#321', '#fd5'];
 
   return (
     <SafeAreaView>
@@ -138,23 +162,41 @@ export default function App() {
                   position: 'absolute',
                   width: '100%',
                   height: 100,
+                  zIndex: 9,
                   // borderRadius: 100,
                 },
                 wxStyles,
-              ]}
-            />
-            <Animated.View
-              style={[
-                {
-                  position: 'absolute',
-                  width: 100,
-                  height: 100,
-                  borderRadius: 100,
-                  right: 0,
-                },
-                // wxStyles,
-              ]}
-            />
+              ]}>
+              <Text>文字文字文字文字文字文字</Text>
+            </Animated.View>
+            <View
+              style={{
+                width: '100%',
+                height: 100,
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+              }}>
+              {[0, 1, 2].map(ele => {
+                return (
+                  <Animated.View
+                    style={[
+                      {
+                        width: 60,
+                        height: 100,
+                        right: 0,
+                        backgroundColor: bgMap[ele],
+                      },
+                      wxScaleStyles,
+                    ]}>
+                    <Text
+                      style={{color: '#fff', fontSize: 16, fontWeight: '500'}}
+                      numberOfLines={1}>
+                      文字{ele}
+                    </Text>
+                  </Animated.View>
+                );
+              })}
+            </View>
           </View>
         </View>
       </GestureDetector>
