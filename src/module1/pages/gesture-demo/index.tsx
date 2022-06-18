@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
+// todo 模拟多条信息的展示，验证动画库性能；实现联动逻辑，点击其它信息，已打开的信息动画关闭
 
 export default function App() {
   const [logs, setLogs] = useState<string[]>([]);

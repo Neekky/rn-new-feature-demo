@@ -27,7 +27,7 @@ export default function HomePage(props: Iprops) {
                 pagePush(routes.name);
               }}>
               <View style={styles.routeCard} key={routes.name}>
-                <Text>{routes.name}</Text>
+                <Text>{routes.pageTitle}</Text>
               </View>
             </TouchableOpacity>
           );
