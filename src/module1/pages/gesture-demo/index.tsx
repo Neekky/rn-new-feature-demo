@@ -6,6 +6,8 @@ import Animated, {
   useSharedValue,
   withSpring,
   withTiming,
+  interpolate,
+  Extrapolate,
 } from 'react-native-reanimated';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -75,8 +77,6 @@ export default function App() {
 
   const wxOffsetX = useSharedValue(0);
 
-  const wxScale = useSharedValue(0);
-
   const wxStyles = useAnimatedStyle(() => {
     return {
       transform: [{translateX: wxOffsetX.value}],
@@ -84,10 +84,16 @@ export default function App() {
     };
   });
 
+  const [isOpen, setIsOpen] = useState(false);
+
   const wxScaleStyles = useAnimatedStyle(() => {
+    const tempscale = interpolate(wxOffsetX.value, [-240, 0], [1, 0], {
+      extrapolateRight: Extrapolate.CLAMP,
+      extrapolateLeft: Extrapolate.CLAMP,
+    });
+
     return {
-      width: wxScale.value * 60,
-      // transform: [{scaleX: wxScale.value}],
+      width: tempscale * 80,
     };
   });
 
@@ -108,16 +114,23 @@ export default function App() {
       // 如果位移往右滑，到右边，则为0
       if (e.changeX + wxOffsetX.value > 0) {
         wxOffsetX.value = 0;
-      } else if (Math.abs(e.changeX + wxOffsetX.value) > 180) {
+      } else if (Math.abs(e.changeX + wxOffsetX.value) > 240) {
         // 往左滑，最大距离为180
-        wxOffsetX.value = -180;
+        wxOffsetX.value = -240;
       }
-
-      wxScale.value = Math.abs(wxOffsetX.value / 180);
     })
     .onTouchesUp(() => {
       wxIsPressed.value = false;
-      if (Math.abs(wxOffsetX.value) < 180) {
+      if (Math.abs(wxOffsetX.value) < 80) {
+        // 左滑距离小于80时，一律关闭
+        setIsOpen(false);
+        wxOffsetX.value = withTiming(0);
+      } else if (Math.abs(wxOffsetX.value) > 80 && !isOpen) {
+        // 未打开情况，并且滑动距离大于80，直接打开
+        setIsOpen(true);
+        wxOffsetX.value = withTiming(-240);
+      } else {
+        setIsOpen(false);
         wxOffsetX.value = withTiming(0);
       }
     })
@@ -181,18 +194,23 @@ export default function App() {
                   <Animated.View
                     style={[
                       {
-                        width: 60,
+                        width: 80,
+                        overflow: 'hidden',
                         height: 100,
                         right: 0,
+                        justifyContent: 'center',
+                        alignItems: 'center',
                         backgroundColor: bgMap[ele],
                       },
                       wxScaleStyles,
                     ]}>
-                    <Text
-                      style={{color: '#fff', fontSize: 16, fontWeight: '500'}}
-                      numberOfLines={1}>
-                      文字{ele}
-                    </Text>
+                    <View style={{width: 80, alignItems: 'center'}}>
+                      <Text
+                        style={{color: '#fff', fontSize: 16, fontWeight: '500'}}
+                        numberOfLines={1}>
+                        文字{ele}
+                      </Text>
+                    </View>
                   </Animated.View>
                 );
               })}
