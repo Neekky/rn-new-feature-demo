@@ -11,6 +11,7 @@ export default class App extends Component {
     super(props);
     this.state = {
       dataProvider: new DataProvider((r1, r2) => {
+        console.log(r1, r2, "数据对比")
         return r1 !== r2;
       }),
       layoutProvider: LayoutUtil.getLayoutProvider(0),
@@ -30,10 +31,12 @@ export default class App extends Component {
       this.inProgressNetworkReq = true;
       const images = await DataCall.get(this.state.count, 20);
       this.inProgressNetworkReq = false;
+      const result = this.state.dataProvider.cloneWithRows(
+        this.state.images.concat(images)
+      )
+      console.log(result, "查看")
       this.setState({
-        dataProvider: this.state.dataProvider.cloneWithRows(
-          this.state.images.concat(images)
-        ),
+        dataProvider: result,
         images: this.state.images.concat(images),
         count: this.state.count + 20,
       });
@@ -99,3 +102,4 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 });
+

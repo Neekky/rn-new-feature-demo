@@ -1,11 +1,12 @@
-import { LayoutProvider } from 'recyclerlistview';
-import { Dimensions } from 'react-native';
+import {LayoutProvider} from 'recyclerlistview';
+import {Dimensions} from 'react-native';
 
 export class LayoutUtil {
   static getWindowWidth() {
     // To deal with precision issues on android
     return Math.round(Dimensions.get('window').width * 1000) / 1000 - 6; //Adjustment for margin given to RLV;
   }
+
   static getLayoutProvider(type) {
     switch (type) {
       case 0:
@@ -14,6 +15,7 @@ export class LayoutUtil {
             return 'VSEL'; //Since we have just one view type
           },
           (type, dim, index) => {
+            console.log(type, dim, index, "查看渲染数据")
             const columnWidth = LayoutUtil.getWindowWidth() / 3;
             switch (type) {
               case 'VSEL':
@@ -32,7 +34,7 @@ export class LayoutUtil {
                 dim.width = 0;
                 dim.heigh = 0;
             }
-          }
+          },
         );
       case 1:
         return new LayoutProvider(
@@ -49,7 +51,7 @@ export class LayoutUtil {
                 dim.width = 0;
                 dim.heigh = 0;
             }
-          }
+          },
         );
       case 2:
         return new LayoutProvider(
@@ -66,7 +68,7 @@ export class LayoutUtil {
                 dim.width = 0;
                 dim.heigh = 0;
             }
-          }
+          },
         );
       default:
         return new LayoutProvider(
@@ -83,7 +85,7 @@ export class LayoutUtil {
                 dim.width = 0;
                 dim.heigh = 0;
             }
-          }
+          },
         );
     }
   }

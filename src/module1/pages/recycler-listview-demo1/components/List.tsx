@@ -24,14 +24,14 @@ class ItemAnimator implements BaseItemAnimator {
   animateWillMount(atX, atY, itemIndex) {
     //This method is called before the componentWillMount of the list item in the rowrenderer
     //Fill in your logic.
-    console.log('animateWillMount start', atX, atY, itemIndex);
+    // console.log('animateWillMount start', atX, atY, itemIndex);
     return undefined;
   }
   animateDidMount(atX, atY, itemRef, itemIndex) {
     //This method is called after the componentDidMount of the list item in the rowrenderer
     //Fill in your logic
     //No return
-    console.log('animateDidMount start', atX, atY, itemRef, itemIndex);
+    // console.log('animateDidMount start', atX, atY, itemRef, itemIndex);
   }
   animateWillUpdate(fromX, fromY, toX, toY, itemRef, itemIndex): void {
     //This method is called before the componentWillUpdate of the list item in the rowrenderer. If the list item is not re-rendered,
@@ -41,28 +41,28 @@ class ItemAnimator implements BaseItemAnimator {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
     //No return
-    console.log(
-      'animateWillUpdate start',
-      fromX,
-      fromY,
-      toX,
-      toY,
-      itemRef,
-      itemIndex,
-    );
+    // console.log(
+    //   'animateWillUpdate start',
+    //   fromX,
+    //   fromY,
+    //   toX,
+    //   toY,
+    //   itemRef,
+    //   itemIndex,
+    // );
   }
   animateShift(fromX, fromY, toX, toY, itemRef, itemIndex): boolean {
     //This method is called if the the props have not changed, but the view has shifted by a certain amount along either x or y axes.
     //Note that, this method is not triggered if the props or size has changed and the animateWillUpdate will be triggered in that case.
     //Return value is used as the return value of shouldComponentUpdate, therefore will trigger a view re-render if true.
 
-    console.log('animateShift start');
+    // console.log('animateShift start');
     return false;
   }
   animateWillUnmount(atX, atY, itemRef, itemIndex): void {
     //This method is called before the componentWillUnmount of the list item in the rowrenderer
     //No return
-    console.log('animateWillUnmount start', atX, atY, itemRef, itemIndex);
+    // console.log('animateWillUnmount start', atX, atY, itemRef, itemIndex);
   }
 }
 
@@ -92,6 +92,7 @@ class List extends React.Component<any, any> {
     //as the stableId.
     let dataProvider = new DataProvider(
       (r1, r2) => {
+        console.log(r1, r2, "数据对比")
         return r1 !== r2;
       },
       index => {
@@ -128,6 +129,7 @@ class List extends React.Component<any, any> {
     );
     this.itemAnimator = new ItemAnimator();
     this.recyclerListViewRef = React.createRef();
+    console.log(dataProvider.cloneWithRows(data), "查看")
     this.state = {
       dataProvider: dataProvider.cloneWithRows(data),
       extendedState: {
@@ -147,6 +149,7 @@ class List extends React.Component<any, any> {
     this.setState(
       {
         extendedState: {...extendedState},
+        
       },
       () => {
         console.log(this.state.extendedState.selected);
@@ -172,12 +175,12 @@ class List extends React.Component<any, any> {
   };
 
   renderFooter = () => {
-    return <View><Text>123132</Text></View>
+    return <View style={{width: "100%", height:100, backgroundColor :"#ddd"}}><Text>Footer</Text></View>
   }
 
   render() {
     let renderFooter =
-      this.state.dataProvider.getSize() === 0 ? this.renderFooter : null;
+      this.state.dataProvider.getSize() !== 0 ? this.renderFooter : null;
     return (
       <View style={styles.rootContainer}>
         <View style={styles.flowRight}>
