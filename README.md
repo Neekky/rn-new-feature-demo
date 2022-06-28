@@ -8,6 +8,8 @@
 #### RN 手势动画相关：
 - react-native-gesture-handler@2.x，各个API的使用
 - react-native-reanimated@2.x，各个API的使用
+#### 状态管理
+- Mobx
 
 #### 下一步探究：
 - RN 热更新、差量更新
@@ -17,6 +19,7 @@
 - lerna 管理项目
 - React Native Skia
 - React Native SSR
+- Jenkins CI/CD
 
 #### 集成自开发小组件
 - 导航栏-列表联动组件
