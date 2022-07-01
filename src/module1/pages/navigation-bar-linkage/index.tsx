@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-shadow */
-/* eslint-disable no-unsafe-optional-chaining */
-/* eslint-disable react/require-default-props */
-/* eslint-disable no-unused-vars */
 import React, {useState, useEffect, memo, useRef} from 'react';
 import {
   View,
@@ -12,17 +8,16 @@ import {
   FlatList,
   Pressable,
   ScrollView,
-  Animated,
   LayoutAnimation,
   Image,
 } from 'react-native';
 import _ from 'lodash';
 import connor from './img/connor2.png';
-import SeriseListItem from './components/seriseListItem';
+import SeriseListItem from './components/serise-list-item';
 import fastArrow from './img/fastarrow.png';
 import topArrow from './img/topArrow.png';
 import fastshadow from './img/fastShadow.png';
-import PanelItem from './components/panelItem';
+import PanelItem from './components/panel-item';
 import mockdata from './mock';
 
 const {width} = Dimensions.get('window');
@@ -107,8 +102,6 @@ function SeriesProductList(props: IProductListProps) {
     }
   });
 
-  const flag = Array.isArray(productList?.slice(0));
-
   const viewConfigRef = useRef({
     itemVisiblePercentThreshold: 0,
     waitForInteraction: true,
@@ -122,7 +115,6 @@ function SeriesProductList(props: IProductListProps) {
     flatlistRef.current &&
       flatlistRef.current.scrollToIndex({
         index: item.index,
-        viewOffset: -40,
         viewPosition: 0,
       });
   };
@@ -184,14 +176,10 @@ function SeriesProductList(props: IProductListProps) {
     setPanelList(temp);
   }, [seriseList]);
 
-  console.log(mockdata);
   return (
     <View
       style={{
-        width,
-        alignItems: 'center',
-        paddingBottom: 12,
-        paddingTop: seriseList.length > 1 ? 0 : 12,
+        flex: 1,
       }}>
       {/* 顶部快筛栏 */}
       {seriseList.length > 1 && (
@@ -312,43 +300,35 @@ function SeriesProductList(props: IProductListProps) {
         </ScrollView>
       </View>
 
-      {flag && (
-        <Animated.FlatList
-          onTouchStart={() => {
-            setIsShowPanel(false);
-          }}
-          onMomentumScrollEnd={() => {
-            setIsClickScroll(false);
-            // 设置滑动id为实际id
-            setCurSeriesId(trulySeriesId);
-          }}
-          ref={flatlistRef}
-          onViewableItemsChanged={onViewRef.current}
-          viewabilityConfig={viewConfigRef.current}
-          data={productList}
-          keyExtractor={item => `${item?.id}`}
-          windowSize={11}
-          getItemLayout={(data, index) => {
-            return {length: 45, offset: 45 * index, index};
-          }}
-          showsVerticalScrollIndicator={false}
-          ListHeaderComponent={
-            <RightSelectItem name="全部" id="all" selected={isAllSelected} />
-          }
-          renderItem={({item}) => {
-            const {seriesCode, title = '', id, type} = item;
-            return (
-              <OriginSeriesSelectItem
-                seriesCode={seriesCode}
-                name={title}
-                type={type}
-                cacheSeriesCodeMapData={cacheSeriesCodeMapData}
-                id={id}
-              />
-            );
-          }}
-        />
-      )}
+      <FlatList
+        data={productList}
+        ref={flatlistRef}
+        onMomentumScrollEnd={() => {
+          setIsClickScroll(false);
+          setCurSeriesId(trulySeriesId);
+        }}
+        onViewableItemsChanged={onViewRef.current}
+        viewabilityConfig={viewConfigRef.current}
+        keyExtractor={item => `${item?.id}`}
+        windowSize={3}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <RightSelectItem name="全部" id="all" selected={isAllSelected} />
+        }
+        renderItem={({item}) => {
+          const {seriesCode, title = '', id, type, name} = item;
+          return (
+            <OriginSeriesSelectItem
+              seriesCode={seriesCode}
+              name={name}
+              title={title}
+              type={type}
+              cacheSeriesCodeMapData={cacheSeriesCodeMapData}
+              id={id}
+            />
+          );
+        }}
+      />
     </View>
   );
 }
@@ -386,6 +366,7 @@ function OriginSeriesSelectItem(props: SeriesItemProps) {
     seriesCode = '',
     id,
     type,
+    title,
     cacheSeriesCodeMapData = {},
   } = props;
   const {isSeriesAllSelected = false, selectProductIds = []} =
@@ -396,7 +377,7 @@ function OriginSeriesSelectItem(props: SeriesItemProps) {
         <View style={styles.seriesTitle}>
           <Pressable style={styles.seriesNameWrap}>
             <View style={styles.point} />
-            <Text style={styles.seriesName}>{name}</Text>
+            <Text style={styles.seriesName}>{title}</Text>
           </Pressable>
           <Pressable
             style={[
@@ -460,7 +441,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 12,
     paddingVertical: 10,
-    width: width * 0.685,
+    width,
     borderWidth: 0.5,
     borderColor: 'transparent',
     backgroundColor: '#F9F9F9',
@@ -473,7 +454,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: width * 0.685,
+    width,
+    paddingHorizontal: 24,
     marginBottom: 8,
     minHeight: 28,
   },

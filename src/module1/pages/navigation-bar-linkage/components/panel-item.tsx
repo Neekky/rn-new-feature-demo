@@ -45,7 +45,7 @@ export default function PanelItem(props: any) {
                 lineHeight: 20
               }}
             >
-              {ele.name}
+              {ele.title}
             </Text>
           </View>
         </TouchableOpacity>
