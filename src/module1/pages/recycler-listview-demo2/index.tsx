@@ -21,9 +21,11 @@ export default class App extends Component {
     };
     this.inProgressNetworkReq = false;
   }
+
   componentWillMount() {
     this.fetchMoreData();
   }
+  
   async fetchMoreData() {
     if (!this.inProgressNetworkReq) { 
       //To prevent redundant fetch requests. Needed because cases of quick up/down scroll can trigger onEndReached

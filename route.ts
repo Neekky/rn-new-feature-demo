@@ -4,6 +4,7 @@ import Homepage from './src/module1/pages/homepage';
 import RecyclerListviewDemo from './src/module1/pages/recycler-listview-demo1';
 import RecyclerListviewDemo2 from './src/module1/pages/recycler-listview-demo2';
 import RecyclerListviewDemo3 from './src/module1/pages/recycler-listview-demo3';
+import NavigationBarLinkage from './src/module1/pages/navigation-bar-linkage';
 
 type routeItem = {
     name: string;
@@ -18,4 +19,5 @@ export const module1: routeItem[] = [
   {name: 'RecyclerListviewDemo', pageTitle: 'RecyclerListView 示例1', component: RecyclerListviewDemo, options: {}},
   {name: 'RecyclerListviewDemo2', pageTitle: 'RecyclerListView 示例2', component: RecyclerListviewDemo2, options: {}},
   {name: 'RecyclerListviewDemo3', pageTitle: 'RecyclerListView 示例3', component: RecyclerListviewDemo3, options: {}},
+  {name: 'NavigationBarLinkageDemo', pageTitle: '导航栏列表联动示例', component: NavigationBarLinkage, options: {title: "导航栏-列表联动"}},
 ];
