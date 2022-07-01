@@ -1,57 +1,71 @@
 import React, {useState, useEffect, memo, useRef} from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
   FlatList,
-  Pressable,
   ScrollView,
   LayoutAnimation,
   Image,
 } from 'react-native';
 import _ from 'lodash';
-import connor from './img/connor2.png';
 import SeriseListItem from './components/serise-list-item';
+import PanelItem from './components/panel-item';
+import mockdata from './mock';
+import {ListItem} from './components/list-item';
+import HeaderItem from './components/header-item';
+
 import fastArrow from './img/fastarrow.png';
 import topArrow from './img/topArrow.png';
 import fastshadow from './img/fastShadow.png';
-import PanelItem from './components/panel-item';
-import mockdata from './mock';
 
 const {width} = Dimensions.get('window');
 
 type TData = {id: number | string; name: string; selected?: boolean};
 
-interface IProductListProps {
+interface IProps {
   productList: TData[];
-  cacheSeriesCodeMapData: any;
   isAllSelected: boolean;
-  maxHeight: number;
 }
 interface SeriesItemProps {
   seriesCode?: string;
   id: string | number;
-  name: string;
-  type: string;
-  handleProductPress: (type: string, data: any) => void;
-  cacheSeriesCodeMapData: any;
+  name?: string;
+  type?: string;
+  title?: string;
+  handleProductPress?: (type: string, data: any) => void;
 }
 
-export default memo(SeriesProductList);
+const RowRenderer = (props: SeriesItemProps) => {
+  const {name = '', id, type, title} = props;
+  return type === 'header' ? (
+    <HeaderItem id={id} title={title} />
+  ) : (
+    <ListItem id={id} name={name} key={id} handlePress={() => {}} />
+  );
+};
 
-function SeriesProductList(props: IProductListProps) {
-  const {
-    productList = mockdata.data,
-    cacheSeriesCodeMapData = {},
-    isAllSelected = false,
-    maxHeight,
-  } = props;
+const SeriesProductList = (props: IProps) => {
+  const {productList = mockdata.data} = props;
 
   const flatlistRef = useRef<FlatList>();
 
   const scrollviewRef = useRef<ScrollView>();
+
+  const onViewRef = useRef(({viewableItems}) => {
+    // 获取可见区域第一项
+    const firstItem = viewableItems[0];
+    if (firstItem.item.type === 'header') {
+      setCurSeriesId(firstItem.item.id);
+    }
+  });
+
+  // 列表可见事件配置
+  const viewConfigRef = useRef({
+    itemVisiblePercentThreshold: 0,
+    waitForInteraction: true,
+  });
 
   // 因逻辑问题，变为中间值
   const [curSeriesId, setCurSeriesId] = useState(-1);
@@ -72,6 +86,19 @@ function SeriesProductList(props: IProductListProps) {
   // 控制子组件是否打开快筛面板
   const [isShowPanel, setIsShowPanel] = useState(false);
 
+  // 快筛面板数据源
+  const [panelList, setPanelList] = useState<any>([]);
+
+  // 初始list， 未排序
+  const [allItemWidthList, setAllItemWidthList] = useState([]);
+
+  // 排序后的list
+  const [sortItemWidthList, setSortItemWidthList] = useState<any>({});
+
+  // 设置滑动框最大宽度
+  const [maxWidth, setMaxWidth] = useState(0);
+
+  // 处理数据源
   useEffect(() => {
     const temp = productList?.filter((ele, i) => {
       if (ele.type === 'header') {
@@ -85,6 +112,12 @@ function SeriesProductList(props: IProductListProps) {
     setAllItemWidthList([]);
   }, [productList]);
 
+  // 处理数据格式为三组二维数组
+  useEffect(() => {
+    const temp = _.chunk(seriseList, 3);
+    setPanelList(temp);
+  }, [seriseList]);
+
   // 当由flatlist滑动造成index变化、快筛点击造成index变化时，要进行判断
   useEffect(() => {
     if (isClickScroll) {
@@ -93,40 +126,6 @@ function SeriesProductList(props: IProductListProps) {
       setTrulySeriesId(curSeriesId);
     }
   }, [curSeriesId, clickSeriesId, isClickScroll]);
-
-  const onViewRef = useRef(({viewableItems}) => {
-    // 获取可见区域第一项
-    const firstItem = viewableItems[0];
-    if (firstItem.item.type === 'header') {
-      setCurSeriesId(firstItem.item.id);
-    }
-  });
-
-  const viewConfigRef = useRef({
-    itemVisiblePercentThreshold: 0,
-    waitForInteraction: true,
-  });
-
-  const handlePress = (item: any) => {
-    if (trulySeriesId === item.id) return;
-    setIsClickScroll(true);
-    setClickSeriesId(item.id);
-    setIsShowPanel(false);
-    flatlistRef.current &&
-      flatlistRef.current.scrollToIndex({
-        index: item.index,
-        viewPosition: 0,
-      });
-  };
-
-  // 初始list， 未排序
-  const [allItemWidthList, setAllItemWidthList] = useState([]);
-
-  // 排序后的list
-  const [sortItemWidthList, setSortItemWidthList] = useState<any>({});
-
-  // 设置滑动框最大宽度
-  const [maxWidth, setMaxWidth] = useState(0);
 
   useEffect(() => {
     // 搜集子项宽度
@@ -168,13 +167,17 @@ function SeriesProductList(props: IProductListProps) {
     setAllItemWidthList([...allItemWidthList, data]);
   };
 
-  const [panelList, setPanelList] = useState<any>([]);
-
-  // 处理数据格式为三组二维数组
-  useEffect(() => {
-    const temp = _.chunk(seriseList, 3);
-    setPanelList(temp);
-  }, [seriseList]);
+  const handlePress = (item: any) => {
+    if (trulySeriesId === item.id) return;
+    setIsClickScroll(true);
+    setClickSeriesId(item.id);
+    setIsShowPanel(false);
+    flatlistRef.current &&
+      flatlistRef.current.scrollToIndex({
+        index: item.index,
+        viewPosition: 0,
+      });
+  };
 
   return (
     <View
@@ -183,23 +186,7 @@ function SeriesProductList(props: IProductListProps) {
       }}>
       {/* 顶部快筛栏 */}
       {seriseList.length > 1 && (
-        <View
-          style={[
-            {
-              flexDirection: 'row',
-              alignItems: 'center',
-              width: '100%',
-              height: 44,
-              backgroundColor: '#fff',
-            },
-            isShowPanel && {
-              shadowColor: '#000',
-              shadowOffset: {width: 0, height: 0},
-              shadowOpacity: 0.15,
-              shadowRadius: 8,
-              elevation: 30,
-            },
-          ]}>
+        <View style={[styles.fastTagBar, isShowPanel && styles.shadow]}>
           {/* 快筛滑动区域 */}
           <ScrollView
             onLayout={event => {
@@ -269,15 +256,9 @@ function SeriesProductList(props: IProductListProps) {
           styles.panelExpand,
           {
             minHeight: isShowPanel ? 180 : 0,
-            maxHeight: isShowPanel ? maxHeight : 0,
+            maxHeight: isShowPanel ? 300 : 0,
           },
-          isShowPanel && {
-            shadowColor: '#000',
-            shadowOffset: {width: 0, height: 12},
-            shadowOpacity: 0.15,
-            shadowRadius: 8,
-            elevation: 30,
-          },
+          isShowPanel && styles.shadow,
         ]}>
         <ScrollView
           style={{
@@ -310,20 +291,15 @@ function SeriesProductList(props: IProductListProps) {
         onViewableItemsChanged={onViewRef.current}
         viewabilityConfig={viewConfigRef.current}
         keyExtractor={item => `${item?.id}`}
-        windowSize={3}
         showsVerticalScrollIndicator={false}
-        ListHeaderComponent={
-          <RightSelectItem name="全部" id="all" selected={isAllSelected} />
-        }
         renderItem={({item}) => {
           const {seriesCode, title = '', id, type, name} = item;
           return (
-            <OriginSeriesSelectItem
+            <RowRenderer
               seriesCode={seriesCode}
               name={name}
               title={title}
               type={type}
-              cacheSeriesCodeMapData={cacheSeriesCodeMapData}
               id={id}
             />
           );
@@ -331,149 +307,18 @@ function SeriesProductList(props: IProductListProps) {
       />
     </View>
   );
-}
-
-interface IRightSelectItemProps {
-  name: string;
-  id: number | string;
-  selected: boolean;
-}
-
-const RightSelectItem = memo(OriginRightSelectItem);
-
-function OriginRightSelectItem(props: IRightSelectItemProps) {
-  const {name, id, handleProductPress, selected} = props;
-  return (
-    <TouchableOpacity>
-      <View
-        style={[styles.selectItemWrapper, selected && styles.selectItemActive]}>
-        <Text
-          numberOfLines={2}
-          ellipsizeMode="tail"
-          style={[styles.productName, selected && {color: '#FF542A'}]}>
-          {name}
-        </Text>
-        {selected ? <Image style={styles.connor} source={connor} /> : null}
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-// const SeriesSelectItem = memo(OriginSeriesSelectItem);
-function OriginSeriesSelectItem(props: SeriesItemProps) {
-  const {
-    name = '',
-    seriesCode = '',
-    id,
-    type,
-    title,
-    cacheSeriesCodeMapData = {},
-  } = props;
-  const {isSeriesAllSelected = false, selectProductIds = []} =
-    cacheSeriesCodeMapData[seriesCode] || {};
-  return (
-    <View>
-      {type === 'header' ? (
-        <View style={styles.seriesTitle}>
-          <Pressable style={styles.seriesNameWrap}>
-            <View style={styles.point} />
-            <Text style={styles.seriesName}>{title}</Text>
-          </Pressable>
-          <Pressable
-            style={[
-              styles.seriesAllSelect,
-              isSeriesAllSelected && styles.selectItemActive,
-            ]}>
-            <Text
-              style={[
-                styles.seriesAllSelectName,
-                isSeriesAllSelected && styles.selectText,
-              ]}>
-              全部
-            </Text>
-            {isSeriesAllSelected ? (
-              <Image style={styles.connor} source={connor} />
-            ) : null}
-          </Pressable>
-        </View>
-      ) : (
-        <RightSelectItem
-          id={id}
-          name={name}
-          key={id}
-          handleProductPress={() => {
-            handleProductPress('product', {id, name, seriesCode});
-          }}
-          selected={selectProductIds.includes(id)}
-        />
-      )}
-    </View>
-  );
-}
+};
 
 const styles = StyleSheet.create({
   panelExpand: {
-    marginTop: 2,
     position: 'absolute',
     top: 42,
+    marginTop: 2,
     width: '100%',
     zIndex: 9,
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     paddingBottom: 12,
-  },
-  productName: {
-    fontSize: 14,
-    color: '#333',
-  },
-  connor: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    width: 16,
-    height: 16,
-  },
-  selectItemActive: {
-    backgroundColor: '#FFF4EE',
-    borderColor: '#FF542A',
-  },
-  selectItemWrapper: {
-    justifyContent: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    width,
-    borderWidth: 0.5,
-    borderColor: 'transparent',
-    backgroundColor: '#F9F9F9',
-    borderRadius: 4,
-    marginBottom: 8,
-    minHeight: 40,
-  },
-  seriesTitle: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width,
-    paddingHorizontal: 24,
-    marginBottom: 8,
-    minHeight: 28,
-  },
-  seriesNameWrap: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  point: {
-    width: 4,
-    height: 4,
-    backgroundColor: '#333333',
-    borderRadius: 2,
-    marginRight: 4,
-  },
-  seriesName: {
-    fontSize: 14,
-    fontWeight: '600',
   },
   seriesAllSelect: {
     width: 45,
@@ -492,4 +337,20 @@ const styles = StyleSheet.create({
   selectText: {
     color: '#FF542A',
   },
+  shadow: {
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 12},
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 30,
+  },
+  fastTagBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    height: 44,
+    backgroundColor: '#fff',
+  },
 });
+
+export default memo(SeriesProductList);
