@@ -23,6 +23,7 @@ export default function HomePage(props: Iprops) {
         {module1.map(routes => {
           return (
             <TouchableOpacity
+              key={routes.pageTitle}
               onPress={() => {
                 pagePush(routes.name);
               }}>

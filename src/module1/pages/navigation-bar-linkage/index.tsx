@@ -24,6 +24,8 @@ const {width} = Dimensions.get('window');
 
 type TData = {id: number | string; name: string; selected?: boolean};
 
+// todo 列表滑动时添加防抖，延时处理快筛滚动；代码结构梳理，抽成组件；
+
 interface IProps {
   productList: TData[];
   isAllSelected: boolean;
