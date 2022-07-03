@@ -7,6 +7,7 @@ import RecyclerListviewDemo3 from './src/module1/pages/recycler-listview-demo3';
 import NavigationBarLinkage from './src/module1/pages/nav-bar-linkage';
 import Drawer from './src/module1/pages/react-navigation-demo/drawer';
 import BottomTabs from './src/module1/pages/react-navigation-demo/bottom-tabs';
+import RNVideoDemo from './src/module1/pages/react-native-video-demo';
 
 type routeItem = {
   name: string;
@@ -64,4 +65,11 @@ export const module1: routeItem[] = [
     component: BottomTabs,
     options: {title: '底部导航示例', headerShown: false},
   },
+  {
+    name: 'RNVideoDemo',
+    pageTitle: 'RN video示例',
+    component: RNVideoDemo,
+    options: {title: 'RN video示例'},
+  },
+  
 ];

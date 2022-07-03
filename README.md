@@ -4,12 +4,21 @@
 #### RN 新架构：
 - react-native@0.68.2，新架构特性验证
 #### RN 导航栏库
-- react-navigation@6.0，各个API的使用
+- react-navigation@6.0
+    - Drawer Navigator 抽屉导航
+    - Bottom Tabs Navigator 底部标签导航
+    - Stack Navigator
+    - Native Stack Navigator
+    - 各个API的使用
+
 #### RN 手势动画相关：
 - react-native-gesture-handler@2.x，各个API的使用
 - react-native-reanimated@2.x，各个API的使用
 #### 状态管理
 - Mobx
+
+#### RN 播放器
+- react-native-video 播放器的使用
 
 #### 下一步探究：
 - RN 热更新、差量更新
