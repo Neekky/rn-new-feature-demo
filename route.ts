@@ -8,6 +8,7 @@ import NavigationBarLinkage from './src/module1/pages/nav-bar-linkage';
 import Drawer from './src/module1/pages/react-navigation-demo/drawer';
 import BottomTabs from './src/module1/pages/react-navigation-demo/bottom-tabs';
 import RNVideoDemo from './src/module1/pages/react-native-video-demo';
+import WaterfallDemo from "./src/module1/pages/waterfall-demo";
 
 type routeItem = {
   name: string;
@@ -71,5 +72,12 @@ export const module1: routeItem[] = [
     component: RNVideoDemo,
     options: {title: 'RN video示例'},
   },
+  {
+    name: 'WaterfallDemo',
+    pageTitle: 'RN 瀑布流',
+    component: WaterfallDemo,
+    options: {title: '基于RecycleList 瀑布流'},
+  },
+  
   
 ];

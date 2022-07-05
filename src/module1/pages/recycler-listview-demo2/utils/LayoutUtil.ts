@@ -15,7 +15,6 @@ export class LayoutUtil {
             return 'VSEL'; //Since we have just one view type
           },
           (type, dim, index) => {
-            console.log(type, dim, index, "查看渲染数据")
             const columnWidth = LayoutUtil.getWindowWidth() / 3;
             switch (type) {
               case 'VSEL':
