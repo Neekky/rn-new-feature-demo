@@ -101,7 +101,7 @@ export default function App() {
   // 模拟wx删除消息动画功能
   const wxDel = Gesture.Pan()
     .onBegin(() => {
-      console.log('开始滑动');
+      // console.log('开始滑动');
     })
     .onTouchesDown(() => {})
     .onTouchesMove(() => {})

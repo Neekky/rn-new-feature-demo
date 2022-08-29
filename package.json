@@ -8,6 +8,7 @@
     "test": "jest",
     "lint": "eslint .",
     "start": "mcs-scripts start -p 8081", 
+    "originstart": "react-native start",
     "build:dllJson": "mcs-scripts build -t dllJson -od public/dll", 
     "build:dll": "mcs-scripts build -t dll -od public/dll", 
     "build": "mcs-scripts build -t busine -e index.js"
